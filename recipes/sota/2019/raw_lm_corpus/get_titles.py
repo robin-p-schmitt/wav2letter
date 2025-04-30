@@ -16,7 +16,7 @@ def get_one_title_from_cache(book_id):
 def get_one_title(book_id):
     try:
         title = (
-            ET.parse("{c}/{bid}/pg{bid}.rdf".format(c=CACHE_PATH, bid=str(book_id)))
+            ET.parse("{c}/epub/{bid}/pg{bid}.rdf".format(c=CACHE_PATH, bid=str(book_id)))
             .getroot()
             .find(
                 "./{http://www.gutenberg.org/2009/pgterms/}ebook/{http://purl.org/dc/terms/}title"

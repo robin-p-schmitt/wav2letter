@@ -7,13 +7,20 @@ from gutenberg.cleanup import strip_headers
 
 def strip_header(name):
     print(name)
-    with open(name, "r") as intext:
-        buf = intext.read().encode("utf-8")
+    with open(name, "rb") as intext:
+        raw = intext.read()
+        try:
+            buf = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            return None
         return strip_headers(buf).strip()
 
 
 def extract_one_book(book_path):
     content = strip_header(book_path)
+    if content is None:
+        print(f"Error reading {book_path}")
+        return
     newname = os.path.splitext(book_path)[0] + ".body.txt"
     with open(newname, "w") as outfile:
         outfile.write(content)
@@ -29,6 +36,10 @@ def main():
         raise RuntimeError("indir not found")
 
     books = [os.path.join(args.indir, f) for f in os.listdir(args.indir)]
+    # skip books that are already processed
+    books = [
+        f for f in books if not os.path.exists(os.path.splitext(f)[0] + ".body.txt") and not f.endswith(".body.txt")
+    ]
 
     pool = ThreadPool(1)
     pool.map(extract_one_book, books)
